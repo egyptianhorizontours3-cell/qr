@@ -3,86 +3,201 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>صانع الـ QR Code</title>
+    <title>صانع الـ QR Code الاحترافي</title>
+    <!-- استدعاء خط Cairo من جوجل -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
     <!-- استدعاء المكتبة المسؤولة عن رسم الـ QR Code -->
     <script type="text/javascript" src="https://unpkg.com/qr-code-styling@1.5.0/lib/qr-code-styling.js"></script>
     
     <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f4f4f9;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             padding: 20px;
         }
         .container {
-            background: white;
-            padding: 20px;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+        }
+        h2 {
+            color: #333;
+            margin-top: 0;
+            margin-bottom: 25px;
+            font-weight: 800;
+        }
+        .input-group {
+            margin-bottom: 20px;
+            text-align: right;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+        input[type="url"] {
+            width: 100%;
+            padding: 12px 15px;
             border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            max-width: 400px;
-            margin: auto;
+            border: 2px solid #e2e8f0;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            outline: none;
         }
-        input, button {
-            width: 90%;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-            border: 1px solid #ccc;
+        input[type="url"]:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 8px rgba(102, 126, 234, 0.3);
         }
-        button {
-            background-color: #28a745;
-            color: white;
-            border: none;
+        /* تجميل زرار رفع الملفات */
+        .file-upload-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+        .file-upload-wrapper input[type="file"] {
+            font-size: 100px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
             cursor: pointer;
-            font-weight: bold;
         }
-        button:hover {
-            background-color: #218838;
+        .btn-upload {
+            background-color: #f1f5f9;
+            color: #475569;
+            border: 2px dashed #cbd5e1;
+            padding: 15px;
+            border-radius: 10px;
+            width: 100%;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .file-upload-wrapper:hover .btn-upload {
+            background-color: #e2e8f0;
+            border-color: #94a3b8;
+        }
+        .btn-primary, .btn-download {
+            width: 100%;
+            padding: 15px;
+            border-radius: 10px;
+            border: none;
+            color: white;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        .btn-download {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            box-shadow: 0 4px 15px rgba(17, 153, 142, 0.4);
+            display: none; /* مخفي في البداية */
+        }
+        .btn-download:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(17, 153, 142, 0.6);
         }
         #qr-output {
-            margin-top: 20px;
+            margin: 25px 0;
             display: flex;
             justify-content: center;
+            align-items: center;
+            min-height: 200px;
+        }
+        #qr-output canvas {
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2>تحويل الرابط إلى QR Code</h2>
+        <h2>اصنع QR Code خاص بك</h2>
         
-        <!-- مكان إدخال الرابط -->
-        <input type="url" id="linkInput" placeholder="أدخل الرابط هنا (مثال: https://google.com)">
+        <div class="input-group">
+            <label for="linkInput">رابط الموقع أو الصفحة:</label>
+            <input type="url" id="linkInput" placeholder="https://example.com" required>
+        </div>
         
-        <!-- مكان رفع الصورة -->
-        <label for="imageInput">اختر صورة لوضعها في المنتصف:</label>
-        <input type="file" id="imageInput" accept="image/*">
+        <div class="input-group">
+            <label>شعار أو صورة للمنتصف (اختياري):</label>
+            <div class="file-upload-wrapper">
+                <button class="btn-upload" id="uploadText">اضغط هنا لاختيار صورة 📁</button>
+                <input type="file" id="imageInput" accept="image/*" onchange="updateFileName()">
+            </div>
+        </div>
         
-        <button onclick="generateQR()">إنشاء الـ QR Code</button>
+        <button class="btn-primary" onclick="generateQR()">✨ إنشاء الـ QR Code</button>
         
-        <!-- المكان اللي هيظهر فيه الـ QR Code -->
-        <div id="qr-output"></div>
+        <div id="qr-output">
+            <!-- سيظهر الباركود هنا -->
+        </div>
+
+        <button class="btn-download" id="downloadBtn" onclick="downloadQR()">⬇️ تحميل الباركود (PNG)</button>
     </div>
 
     <script>
-        // إعدادات الـ QR Code المبدئية
+        // إعدادات الـ QR Code بشكل عصري
         const qrCode = new QRCodeStyling({
-            width: 300,
-            height: 300,
-            data: "", // هيتحدث بناءً على الرابط
-            image: "", // هيتحدث بناءً على الصورة
+            width: 250, // الحجم
+            height: 250,
+            data: "", 
+            image: "", 
             dotsOptions: {
-                color: "#000000", // لون النقط
-                type: "rounded"   // شكل النقط (دائري)
+                color: "#2d3748", // لون النقط (رمادي غامق شيك)
+                type: "extra-rounded" // نقط دائرية 
+            },
+            cornersSquareOptions: {
+                type: "extra-rounded",
+                color: "#667eea" // لون المربعات اللي في الزوايا
             },
             imageOptions: {
                 crossOrigin: "anonymous",
-                margin: 5 // مسافة صغيرة حوالين الصورة عشان الـ QR ميبقاش لازق فيها
+                margin: 8,
+                imageSize: 0.4 // حجم الصورة في النص
             },
             qrOptions: {
-                errorCorrectionLevel: 'H' // أهم خطوة: بتخلي الـ QR يفضل شغال رغم وجود صورة
+                errorCorrectionLevel: 'H' // لضمان عمل الباركود مع وجود صورة
+            },
+            backgroundOptions: {
+                color: "#ffffff"
             }
         });
+
+        // لتغيير النص لما المستخدم يختار صورة
+        function updateFileName() {
+            const fileInput = document.getElementById('imageInput');
+            const uploadText = document.getElementById('uploadText');
+            if (fileInput.files.length > 0) {
+                uploadText.innerText = "✅ تم اختيار: " + fileInput.files[0].name;
+            } else {
+                uploadText.innerText = "اضغط هنا لاختيار صورة 📁";
+            }
+        }
 
         // دالة إنشاء الـ QR Code
         function generateQR() {
@@ -90,26 +205,36 @@
             const fileInput = document.getElementById('imageInput');
             let imageUrl = "";
 
-            // لو مفيش رابط، نطلب من المستخدم يدخل رابط
             if (!link) {
-                alert("من فضلك أدخل الرابط أولاً!");
+                alert("يرجى إدخال الرابط أولاً!");
                 return;
             }
 
-            // لو المستخدم رفع صورة، نحولها لرابط مؤقت عشان تظهر
             if (fileInput.files && fileInput.files[0]) {
                 imageUrl = URL.createObjectURL(fileInput.files[0]);
             }
 
-            // تحديث بيانات الـ QR Code بالرابط والصورة
+            // تحديث بيانات الباركود
             qrCode.update({
                 data: link,
                 image: imageUrl
             });
 
-            // مسح أي QR Code قديم وعرض الجديد
-            document.getElementById('qr-output').innerHTML = "";
-            qrCode.append(document.getElementById('qr-output'));
+            // مسح القديم وإظهار الجديد
+            const qrOutput = document.getElementById('qr-output');
+            qrOutput.innerHTML = "";
+            qrCode.append(qrOutput);
+
+            // إظهار زر التحميل
+            document.getElementById('downloadBtn').style.display = "block";
+        }
+
+        // دالة تحميل الـ QR Code
+        function downloadQR() {
+            qrCode.download({
+                name: "My-QR-Code", // اسم الملف عند التحميل
+                extension: "png"    // صيغة الصورة
+            });
         }
     </script>
 
