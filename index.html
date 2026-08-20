@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>صانع الـ QR Code</title>
+    <!-- استدعاء المكتبة المسؤولة عن رسم الـ QR Code -->
+    <script type="text/javascript" src="https://unpkg.com/qr-code-styling@1.5.0/lib/qr-code-styling.js"></script>
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f9;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            max-width: 400px;
+            margin: auto;
+        }
+        input, button {
+            width: 90%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        #qr-output {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>تحويل الرابط إلى QR Code</h2>
+        
+        <!-- مكان إدخال الرابط -->
+        <input type="url" id="linkInput" placeholder="أدخل الرابط هنا (مثال: https://google.com)">
+        
+        <!-- مكان رفع الصورة -->
+        <label for="imageInput">اختر صورة لوضعها في المنتصف:</label>
+        <input type="file" id="imageInput" accept="image/*">
+        
+        <button onclick="generateQR()">إنشاء الـ QR Code</button>
+        
+        <!-- المكان اللي هيظهر فيه الـ QR Code -->
+        <div id="qr-output"></div>
+    </div>
+
+    <script>
+        // إعدادات الـ QR Code المبدئية
+        const qrCode = new QRCodeStyling({
+            width: 300,
+            height: 300,
+            data: "", // هيتحدث بناءً على الرابط
+            image: "", // هيتحدث بناءً على الصورة
+            dotsOptions: {
+                color: "#000000", // لون النقط
+                type: "rounded"   // شكل النقط (دائري)
+            },
+            imageOptions: {
+                crossOrigin: "anonymous",
+                margin: 5 // مسافة صغيرة حوالين الصورة عشان الـ QR ميبقاش لازق فيها
+            },
+            qrOptions: {
+                errorCorrectionLevel: 'H' // أهم خطوة: بتخلي الـ QR يفضل شغال رغم وجود صورة
+            }
+        });
+
+        // دالة إنشاء الـ QR Code
+        function generateQR() {
+            const link = document.getElementById('linkInput').value;
+            const fileInput = document.getElementById('imageInput');
+            let imageUrl = "";
+
+            // لو مفيش رابط، نطلب من المستخدم يدخل رابط
+            if (!link) {
+                alert("من فضلك أدخل الرابط أولاً!");
+                return;
+            }
+
+            // لو المستخدم رفع صورة، نحولها لرابط مؤقت عشان تظهر
+            if (fileInput.files && fileInput.files[0]) {
+                imageUrl = URL.createObjectURL(fileInput.files[0]);
+            }
+
+            // تحديث بيانات الـ QR Code بالرابط والصورة
+            qrCode.update({
+                data: link,
+                image: imageUrl
+            });
+
+            // مسح أي QR Code قديم وعرض الجديد
+            document.getElementById('qr-output').innerHTML = "";
+            qrCode.append(document.getElementById('qr-output'));
+        }
+    </script>
+
+</body>
+</html>
